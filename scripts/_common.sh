@@ -11,9 +11,26 @@ pkg_dependencies="expect"
 
 # Install restic if restic is not here
 install_restic () {
-  wget https://github.com/restic/restic/releases/download/v${RESTIC_VERSION}/restic_${RESTIC_VERSION}_linux_amd64.bz2 -O /tmp/restic.bz2
+  architecture=$(uname -m)
+  arch=''
+  case $architecture in
+    i386|i686)
+      arch="386"
+      ;;
+    x86_64)
+      arch=amd64
+      ;;
+    armv*)
+      arch=arm
+      ;;
+    *)
+      echo "Unsupported architecture \"$architecture\""
+      exit 1
+      ;;
+  esac
+  wget https://github.com/restic/restic/releases/download/v${RESTIC_VERSION}/restic_${RESTIC_VERSION}_linux_${arch}.bz2 -O /tmp/restic.bz2
   wget https://github.com/restic/restic/releases/download/v${RESTIC_VERSION}/SHA256SUMS -O /tmp/restic-sha256sums
-  expected_sum=$(grep restic_${RESTIC_VERSION}_linux_amd64.bz2 /tmp/restic-sha256sums | awk '{print $1}')
+  expected_sum=$(grep restic_${RESTIC_VERSION}_linux_${arch}.bz2 /tmp/restic-sha256sums | awk '{print $1}')
   sum=$(sha256sum /tmp/restic.bz2 | awk '{print $1}')
   if [ "$sum" == "$expected_sum" ];then
     bunzip2 /tmp/restic.bz2 -f -c > /usr/local/bin/restic
