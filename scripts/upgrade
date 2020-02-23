@@ -40,5 +40,8 @@ if grep "restic.timer" /etc/yunohost/services.yml > /dev/null ; then
     systemctl start $app.timer
 fi
 
-# install
-install_borg_with_pip
+#=================================================
+# INSTALL DEPENDENCIES
+#=================================================
+ynh_install_app_dependencies $pkg_dependencies
+install_restic

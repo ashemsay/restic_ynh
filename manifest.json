@@ -8,7 +8,7 @@
   },
   "version": "0.9.6~ynh1",
   "url": "https://restic.net/",
-  "license": "BSD 2-Clause License",
+  "license": "BSD 2-Clause \"Simplified\" License",
   "maintainer": {
     "name": "Lionel Coupouchetty-Ramouchetty",
     "email": "restic-ynh@coupouchetty-ramouchetty.fr",
@@ -23,6 +23,7 @@
     "install" : [
       {
         "name": "server",
+        "type": "string",
         "ask": {
           "en": "Indicate the server where you want put your backups",
           "fr": "Indiquez le serveur où vous voulez faire vos sauvegardes"
@@ -35,6 +36,7 @@
       },
       {
         "name": "port",
+        "type": "string",
         "ask": {
           "en": "sftp port of your server",
           "fr": "Le port sftp de votre serveur"
@@ -48,6 +50,7 @@
       },
       {
         "name": "backup_path",
+        "type": "path",
         "ask": {
           "en": "The directory where you want to backup repositories to be created in",
           "fr": "Le répertoire dans lequel les dépôts restic seront créés"
@@ -61,6 +64,7 @@
       },
       {
         "name": "ssh_user",
+        "type": "string",
         "ask": {
           "en": "Indicate the ssh user to use to connect on this server",
           "fr": "Indiquez l'utilisateur ssh à utiliser pour se connecter au serveur"
@@ -95,6 +99,7 @@
       },
       {
         "name": "apps",
+        "type": "string",
         "ask": {
           "en": "Which apps would you backup (list separated by comma or 'all') ?",
           "fr": "Souhaitez-vous effectuer des sauvegardes de vos applications ?"
@@ -116,6 +121,7 @@
       },
       {
         "name": "on_calendar",
+        "type": "string",
         "ask": {
           "en": "Indicate the backup frequency (see systemd OnCalendar format)",
           "fr": "Indiquez la fréquence de la sauvegarde (voir le format OnCalendar de systemd)"
