@@ -94,7 +94,7 @@ service restic start
 
 Next you can check by running on server A
 ```
-restic -r sftp:ks382743.kimsufi.com:./services.coupou.fr/auto_conf snapshots
+restic -r sftp:serverb.domain.tld:servera.domain.tld/auto_conf snapshots
 ```
 
 Replace `auto_conf` with `auto_<app>` if you did not choose to backup configuration but only applications.
