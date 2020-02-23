@@ -57,7 +57,7 @@
           "fr": "Un chemin complet ou relatif vers un répertoire existant sur le serveur distant et accessible en écriture au compte utilisé pour la sauvegarde. Répertoire d'accueil par défaut"
         },
         "example": "./backups",
-    "default": "./"
+    "default": "."
       },
       {
         "name": "ssh_user",
