@@ -11,13 +11,12 @@ pkg_dependencies="expect"
 
 # Install restic if restic is not here
 install_restic () {
-  pushd /tmp
   wget https://github.com/restic/restic/releases/download/v${RESTIC_VERSION}/restic_${RESTIC_VERSION}_linux_amd64.bz2 -O /tmp/restic.bz2
   wget https://github.com/restic/restic/releases/download/v${RESTIC_VERSION}/SHA256SUMS -O /tmp/restic-sha256sums
   expected_sum=$(grep restic_${RESTIC_VERSION}_linux_amd64.bz2 /tmp/restic-sha256sums | awk '{print $1}')
   sum=$(sha256sum /tmp/restic.bz2 | awk '{print $1}')
   if [ "$sum" == "$expected_sum" ];then
-    bunzip2 restic.bz2 -f -c > /usr/local/bin/restic
+    bunzip2 /tmp/restic.bz2 -f -c > /usr/local/bin/restic
     chmod +x /usr/local/bin/restic
   else
     echo -e "\e[91m \e[1m"
