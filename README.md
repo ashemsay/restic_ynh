@@ -8,7 +8,7 @@
 
 [![Install restic with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=restic)
 
-A restic package for YunoHost
+A restic package for YunoHost based on [the Borg package](https://github.com/YunoHost-Apps/borg_ynh/)
 
 ## Usage
 
@@ -20,12 +20,16 @@ Firstly set up this app on the server A you want to backup:
 
 ```
 $ yunohost app install https://github.com/YunoHost-Apps/restic_ynh
-Indicate the server where you want put your backups: serverB.local
+Indicate the server where you want put your backups: serverb.domain.tld
+sftp port of your server (default: 22): 2222
+The directory where you want to backup repositories to be created in (default: ./): ./servera.domain.tld
 Indicate the ssh user to use to connect on this server: servera
-Indicate a strong passphrase, that you will keep preciously if you want to be able to use your backups: N0tAW3akp4ssw0rdYoloMacN!guets
-Would you like to backup your YunoHost configuration ? [0 | 1] (default: 1):
-Would you like to backup mails and user home directory ? [0 | 1] (default: 1):
-Which apps would you backup (list separated by comma or 'all') ? (default: all):
+You are now about to define a new user password. The password should be at least 8 characters - though it is good practice to use longer password (i.e. a passphrase) and/or to use various kind of characters (uppercase, lowercase, digits and special characters).
+Indicate a strong passphrase, that you will keep preciously if you want to be able to use your backups:
+Would you like to backup your YunoHost configuration ? [yes | no] (default: yes):
+Would you like to backup mails and user home directory ? [yes | no] (default: yes):
+Which apps would you backup (list separated by comma or 'all') ? (default: all): gitlab,blogotext,sogo
+Allow backup method to temporarily use more space? [yes | no] (default: yes):
 Indicate the backup frequency (see systemd OnCalendar format) (default: Daily):
 ```
 
@@ -52,7 +56,8 @@ At the end of the installation, the app displays the public_key and the user to 
 You should now authorize the public key for user `servera` on server B by logging into server B with user `servera` and running:
 
 ```
-mkdir ~/.ssh/authorized_keys -p 2>/dev/null
+mkdir ~/.ssh -p 2>/dev/null
+touch ~/.ssh/authorized_keys
 chmod u=rw,go= ~/.ssh/authorized_keys
 cat << EOPKEY >> ~/.ssh/authorized_keys
 <paste here the privakey displayed at the end of installation>
@@ -63,10 +68,10 @@ If you don't find the mail and you don't see the message in the log bar you can 
 cat /root/.ssh/id_restic_ed25519.pub
 ```
 
-## Optional set sftp jail on server B
+## (Optional) set sftp jail on server B
 
 To improve security, make sure user `servera` can only do sftp and can only access his home directory on server B.
-This is how you would do it on Debian/Ubuntu, otherwise refer to your distribution manual (don't forget to replace `servera` by the real username)
+This is how you would do it on Debian/Ubuntu, otherwise refer to your distribution manual (don't forget to replace `servera` with the real username)
 
 ```
 cat << EOCONFIG >> /etc/ssh/sshd_config
@@ -89,8 +94,10 @@ service restic start
 
 Next you can check by running on server A
 ```
-restic list
+restic -r sftp:ks382743.kimsufi.com:./services.coupou.fr/auto_conf snapshots
 ```
+
+Replace `auto_conf` with `auto_<app>` if you did not choose to backup configuration but only applications.
 
 YOU SHOULD CHECK REGULARLY THAT YOUR BACKUP ARE STILL WORKING.
 
