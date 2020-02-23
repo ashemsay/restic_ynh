@@ -1,0 +1,12 @@
+[Unit]
+Description=Run backup __APP__
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/backup-with-__APP__-answerbot
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target

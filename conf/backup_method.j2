@@ -1,0 +1,67 @@
+#!/bin/bash
+
+set -e
+
+RESTIC_PASSWORD="{{ passphrase }}"
+RESTIC_REPOSITORY_BASE=sftp:{{ server }}:{{ backup_path }}
+RESTIC_COMMAND=/usr/local/bin/restic
+
+do_need_mount() {
+    work_dir="$1"
+    name="$2"
+    repo="$3"
+    size="$4"
+    description="$5"
+    export RESTIC_PASSWORD
+    export RESTIC_REPOSITORY=${RESTIC_REPOSITORY_BASE}/$name
+
+    # On essaie de lister les snapshots, sinon on initialise le depot
+    $RESTIC_COMMAND list snapshots || $RESTIC_COMMAND init
+}
+
+do_backup() {
+
+    work_dir="$1"
+    name="$2"
+    repo="$3"
+    size="$4"
+    description="$5"
+    export RESTIC_PASSWORD
+    export RESTIC_REPOSITORY=${RESTIC_REPOSITORY_BASE}/$name
+    LOGFILE=/var/log/backup_restic.log
+    ERRFILE=/var/log/backup_restic.err
+    current_date=$(date +"%d_%m_%y_%H:%M")
+    pushd $work_dir
+    $RESTIC_COMMAND backup ./ >> $LOGFILE 2>> $ERRFILE
+    return_code="$?"
+    popd
+
+    # On ne nettoie que si la sauvegarde s'est bien passee
+    if [ "$return_code" -eq "0" ];then
+            $RESTIC_COMMAND forget --keep-daily 7 --keep-weekly 8 --keep-monthly 12 >> $LOGFILE 2>> $ERRFILE
+    fi
+}
+
+work_dir=$2
+name=$3
+
+size=$5
+description=$6
+
+case "$1" in
+  need_mount)
+    do_need_mount $work_dir $name $repo $size $description
+    ;;
+  backup)
+    do_backup $work_dir $name $repo $size $description
+    ;;
+  mount)
+    do_need_mount $work_dir $name $repo $size $description
+    ;;
+  *)
+    echo "hook called with unknown argument \`$1'" >&2
+    exit 1
+    ;;
+esac
+
+exit 0
