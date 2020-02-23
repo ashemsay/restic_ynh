@@ -1,5 +1,14 @@
 #!/bin/bash
 LOCK_FILE=/tmp/{{ app }}_backup.lock
+EXIT_PROPERLY() {
+  echo -e "\e[91m \e[1m"    # Shell in light red bold
+  echo -e "!!\n  Caught an interruption signal,  removing lock file...\n!!"
+  echo -e "\e[22m"    # Remove bold
+
+  rm $LOCK_FILE
+  exit 1
+}
+trap EXIT_PROPERLY 1 2 3 6 15
 if [ -f "$LOCK_FILE" ];then
   echo "Backup already launched by process $(grep '.*' $LOCK_FILE), canceling this one" >&2
   exit 1
