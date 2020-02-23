@@ -14,8 +14,18 @@ install_restic () {
   if [ ! -f /usr/local/bin/restic ];then
     pushd /tmp
     wget https://github.com/restic/restic/releases/download/v${RESTIC_VERSION}/restic_${RESTIC_VERSION}_linux_amd64.bz2 -O /tmp/restic.bz2
-    bunzip2 restic.bz2 -c > /usr/local/bin/restic
-    chmod +x /usr/local/bin/restic
+    wget https://github.com/restic/restic/releases/download/v${RESTIC_VERSION}/SHA256SUMS -O /tmp/restic-sha256sums
+    expected_sum=$(grep restic_${RESTIC_VERSION}_linux_amd64.bz2 /tmp/restic-sha256sums | awk '{print $1}')
+    sum=$(sha256sum /tmp/restic.bz2 | awk '{print $1}')
+    if [ "$sum" == "$expected_sum" ];then
+      bunzip2 restic.bz2 -c > /usr/local/bin/restic
+      chmod +x /usr/local/bin/restic
+    else
+      echo -e "\e[91m \e[1m"
+      echo -e "\nDownloaded file does not match expected sha256 sum, aborting"
+      echo -e "\e[22m"
+      exit 1
+    fi
   fi
 }
 
