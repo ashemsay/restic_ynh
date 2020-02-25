@@ -5,6 +5,7 @@ After=network.target
 [Service]
 Type=oneshot
 ExecStart=/usr/local/bin/backup-with-__APP__-answerbot
+ExecStartPost=/bin/bash -c 'echo -e "Subject: YunoHost Restic backup log\n$(/bin/journalctl _SYSTEMD_INVOCATION_ID=`systemctl show -p InvocationID --value __APP__.service`)" | /usr/sbin/sendmail root'
 User=root
 Group=root
 
