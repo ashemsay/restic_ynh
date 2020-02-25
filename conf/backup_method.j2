@@ -34,6 +34,7 @@ do_backup() {
     pushd $work_dir
     $RESTIC_COMMAND backup ./ >> $LOGFILE 2>> $ERRFILE
     return_code="$?"
+    $RESTIC_COMMAND check >> $LOGFILE 2>> $ERRFILE
     popd
 
     # On ne nettoie que si la sauvegarde s'est bien passee

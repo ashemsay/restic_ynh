@@ -51,6 +51,8 @@ Sat *-*-1..7 18:00:00 : The first saturday of every month at 18:00
 
 After each invocation an e-mail will be sent to root@yourdomain.tld with the execution log.
 
+NOTE: After each backup, the repository integrity is checked
+
 See here for more info : https://wiki.archlinux.org/index.php/Systemd/Timers#Realtime_timer
 
 At the end of the installation, the app displays the public_key and the user to give to the person who has access to the server B.
@@ -115,5 +117,4 @@ You can setup the restic app several times on the same server so you can backup 
 
 ## TODO
 
-* Schedule backup check
 * Remove expect message when question was not matched
