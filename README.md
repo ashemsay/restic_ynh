@@ -1,6 +1,6 @@
 # restic for Yunohost
 
-[![Latest Version](https://img.shields.io/badge/version-1.0.3-green.svg?style=flat)](https://github.com/YunoHost-Apps/restic_ynh/releases)
+[![Latest Version](https://img.shields.io/badge/version-0.9.6-green.svg?style=flat)](https://github.com/YunoHost-Apps/restic_ynh/releases)
 [![Status](https://img.shields.io/badge/status-testing-yellow.svg?style=flat)](https://github.com/YunoHost-Apps/restic_ynh/milestones)
 [![Integration level](https://dash.yunohost.org/integration/restic.svg)](https://dash.yunohost.org/appci/app/restic)
 [![GitHub license](https://img.shields.io/badge/license-GPLv3-blue.svg?style=flat)](https://raw.githubusercontent.com/YunoHost-Apps/restic_ynh/master/LICENSE)
@@ -48,6 +48,10 @@ Sat *-*-1..7 18:00:00 : The first saturday of every month at 18:00
 4:00 : Every day at 4 AM
 
 5,17:00 : Every day at 5 AM and at 5 PM
+
+After each invocation an e-mail will be sent to root@yourdomain.tld with the execution log.
+
+NOTE: After each backup, the repository integrity is checked
 
 See here for more info : https://wiki.archlinux.org/index.php/Systemd/Timers#Realtime_timer
 
@@ -113,5 +117,4 @@ You can setup the restic app several times on the same server so you can backup 
 
 ## TODO
 
-* Schedule backup check
 * Remove expect message when question was not matched
