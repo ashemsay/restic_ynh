@@ -28,22 +28,19 @@ do_backup() {
     description="$5"
     export RESTIC_PASSWORD
     export RESTIC_REPOSITORY=${RESTIC_REPOSITORY_BASE}/$name
-    LOGFILE=/var/log/backup_restic.log
-    ERRFILE=/var/log/backup_restic.err
+    LOGFILE=/var/log/restic_backup.log
+    ERRFILE=/var/log/restic_backup.err
     current_date=$(date +"%d_%m_%y_%H:%M")
     pushd $work_dir
     $RESTIC_COMMAND backup ./ >> $LOGFILE 2>> $ERRFILE
     backup_return_code="$?"
-    $RESTIC_COMMAND check >> $LOGFILE 2>> $ERRFILE
-    check_return_code="$?"
     popd
 
     # On ne nettoie que si la sauvegarde s'est bien passee
-    if [ "$backup_return_code" -eq "0" ] && [ "$check_return_code" -eq 0 ];then
+    if [ "$backup_return_code" -eq "0" ];then
         $RESTIC_COMMAND forget --keep-daily 7 --keep-weekly 8 --keep-monthly 12 >> $LOGFILE 2>> $ERRFILE
     else
-        [ "$backup_return_code" -ne 0 ] && echo "Something went wrong during backup" >> $ERRFILE
-        [ "$check_return_code" -ne 0 ] && echo "Repository check did not return 0" >> $ERRFILE
+        echo "Something went wrong during backup" >> $ERRFILE
         exit 1
     fi
 }

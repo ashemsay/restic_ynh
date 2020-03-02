@@ -67,7 +67,7 @@ ynh_save_args () {
     if [ "$var" == "path_url" ]; then
       setting_var="path"
     fi
-    ynh_app_setting_set $app $setting_var ${!var}
+    ynh_app_setting_set $app $setting_var "${!var}"
   done
 }
 
