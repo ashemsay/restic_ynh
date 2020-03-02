@@ -52,7 +52,7 @@
         "name": "backup_path",
         "type": "string",
         "ask": {
-          "en": "The directory where you want to backup repositories to be created in",
+          "en": "The directory where you want your backup repositories to be created in",
           "fr": "Le répertoire dans lequel les dépôts restic seront créés"
         },
         "help":{
