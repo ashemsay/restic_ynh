@@ -20,14 +20,15 @@ ynh_abort_if_errors
 # RETRIEVE ARGUMENTS FROM THE MANIFEST
 #=================================================
 export app=$YNH_APP_INSTANCE_NAME
+export final_path="/opt/yunohost/${app}"
 
 # Retrieve arguments
-ynh_export server port ssh_user backup_path passphrase on_calendar conf data apps allow_extra_space_use
+ynh_export server port ssh_user backup_path passphrase on_calendar check_on_calendar check_read_data_on_calendar conf data apps allow_extra_space_use
 
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
-ynh_save_args server port ssh_user backup_path passphrase on_calendar conf data apps allow_extra_space_use
+ynh_save_args server port ssh_user backup_path passphrase on_calendar check_on_calendar check_read_data_on_calendar conf data apps allow_extra_space_use
 
 #=================================================
 # INSTALL DEPENDENCIES
@@ -49,19 +50,31 @@ mkdir -p /usr/share/yunohost/backup_method
 #=================================================
 ynh_print_info --message="Setting up backup methods"
 ynh_configure backup_method "/etc/yunohost/hooks.d/backup_method/05-${app}_app"
+ynh_configure check_method "${final_path}/check_method"
 
 #=================================================
 # CONFIGURE CRON
 #=================================================
 ynh_print_info --message="Configuring cron"
-ynh_configure backup-with-restic "/usr/local/bin/backup-with-$app"
-ynh_configure backup-with-restic-answerbot "/usr/local/bin/backup-with-$app-answerbot"
-chmod u+x "/usr/local/bin/backup-with-$app"
-chmod u+x "/usr/local/bin/backup-with-$app-answerbot"
-ynh_add_systemd_config
-ynh_configure systemd.timer "/etc/systemd/system/$app.timer"
-systemctl enable $app.timer
-systemctl start $app.timer
+ynh_configure backup-with-restic "/usr/local/bin/backup-with-${app}"
+ynh_configure backup-with-restic-answerbot "/usr/local/bin/backup-with-${app}-answerbot"
+ynh_configure check-restic "${final_path}/check-${app}"
+chmod u+x "/usr/local/bin/backup-with-${app}"
+chmod u+x "/usr/local/bin/backup-with-${app}-answerbot"
+chmod u+x "${final_path}/check-${app}"
+chmod u+x "${final_path}/check_method"
+ynh_add_systemd_config --service=${app} --template=systemd.service
+ynh_add_systemd_config --service=${app}_check --template=systemd_check.service
+ynh_add_systemd_config --service=${app}_check_read_data --template=systemd_check_read_data.service
+ynh_configure systemd.timer "/etc/systemd/system/${app}.timer"
+ynh_configure systemd_check.timer "/etc/systemd/system/${app}_check.timer"
+ynh_configure systemd_check_read_data.timer "/etc/systemd/system/${app}_check_read_data.timer"
+systemctl enable ${app}.timer
+systemctl enable ${app}_check.timer
+systemctl enable ${app}_check_read_data.timer
+systemctl start ${app}.timer
+systemctl start ${app}_check.timer
+systemctl start ${app}_check_read_data.timer
 
 #=================================================
 # GENERATE SSH KEY

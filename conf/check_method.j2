@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -e
+
+RESTIC_PASSWORD="{{ passphrase }}"
+RESTIC_REPOSITORY_BASE=sftp:{{ server }}:{{ backup_path }}
+RESTIC_COMMAND=/usr/local/bin/restic
+
+do_check() {
+
+    local name="$1"
+    local check_read_data="$2"
+    export RESTIC_PASSWORD
+    export RESTIC_REPOSITORY=${RESTIC_REPOSITORY_BASE}/$name
+    LOGFILE=/var/log/restic_check.log
+    ERRFILE=/var/log/restic_check.err
+    current_date=$(date +"%d_%m_%y_%H:%M")
+    echo -e "\n==============\n${current_date}\n==============\n" | tee -a ${LOGFILE} | tee -a ${ERRFILE}
+    if [ "$check_read_data" -eq "1" ];then
+      $RESTIC_COMMAND check --read-data >> $LOGFILE 2>> $ERRFILE
+    else
+      $RESTIC_COMMAND check >> $LOGFILE 2>> $ERRFILE
+    fi
+    check_return_code="$?"
+    return "${check_return_code}"
+}
+
+name=$1
+check_read_data=${2:-0}
+
+do_check "${name}" "${check_read_data}"
+
+exit 0

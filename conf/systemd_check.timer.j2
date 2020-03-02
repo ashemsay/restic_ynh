@@ -1,0 +1,8 @@
+[Unit]
+Description=Check {{ app }} backup regularly
+
+[Timer]
+OnCalendar={{ check_on_calendar }}
+
+[Install]
+WantedBy=timers.target
