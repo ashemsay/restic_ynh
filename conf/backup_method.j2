@@ -28,8 +28,8 @@ do_backup() {
     description="$5"
     export RESTIC_PASSWORD
     export RESTIC_REPOSITORY=${RESTIC_REPOSITORY_BASE}/$name
-    LOGFILE=/var/log/backup_restic.log
-    ERRFILE=/var/log/backup_restic.err
+    LOGFILE=/var/log/restic_backup.log
+    ERRFILE=/var/log/restic_backup.err
     current_date=$(date +"%d_%m_%y_%H:%M")
     pushd $work_dir
     $RESTIC_COMMAND backup ./ >> $LOGFILE 2>> $ERRFILE
