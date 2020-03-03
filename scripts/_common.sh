@@ -28,8 +28,8 @@ install_restic () {
       exit 1
       ;;
   esac
-  wget https://github.com/restic/restic/releases/download/v${RESTIC_VERSION}/restic_${RESTIC_VERSION}_linux_${arch}.bz2 -O /tmp/restic.bz2
-  wget https://github.com/restic/restic/releases/download/v${RESTIC_VERSION}/SHA256SUMS -O /tmp/restic-sha256sums
+  wget https://github.com/restic/restic/releases/download/v${RESTIC_VERSION}/restic_${RESTIC_VERSION}_linux_${arch}.bz2 -O /tmp/restic.bz2 2>&1 >/dev/null
+  wget https://github.com/restic/restic/releases/download/v${RESTIC_VERSION}/SHA256SUMS -O /tmp/restic-sha256sums 2>&1 >/dev/null
   expected_sum=$(grep restic_${RESTIC_VERSION}_linux_${arch}.bz2 /tmp/restic-sha256sums | awk '{print $1}')
   sum=$(sha256sum /tmp/restic.bz2 | awk '{print $1}')
   if [ "$sum" == "$expected_sum" ];then
