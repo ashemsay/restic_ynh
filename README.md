@@ -8,7 +8,10 @@
 
 [![Install restic with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=restic)
 
-A restic package for YunoHost based on [the Borg package](https://github.com/YunoHost-Apps/borg_ynh/)
+A [restic](https://restic.net/) package for YunoHost (heavily inspired by [the Borg package](https://github.com/YunoHost-Apps/borg_ynh/)).
+
+Restic is a backup tool that can make local and remote backups.
+This package uses restic to make backups to a sftp server.
 
 ## Usage
 

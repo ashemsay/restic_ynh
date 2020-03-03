@@ -17,9 +17,9 @@ do_check() {
     current_date=$(date +"%d_%m_%y_%H:%M")
     echo -e "\n==============\n${current_date}\n==============\n" | tee -a ${LOGFILE} | tee -a ${ERRFILE}
     if [ "$check_read_data" -eq "1" ];then
-      $RESTIC_COMMAND check --read-data >> $LOGFILE 2>> $ERRFILE
+      $RESTIC_COMMAND check --read-data > >(tee -a $LOGFILE) 2> >(tee -a $ERRFILE >&2)
     else
-      $RESTIC_COMMAND check >> $LOGFILE 2>> $ERRFILE
+      $RESTIC_COMMAND check > >(tee -a $LOGFILE) 2> >(tee -a $ERRFILE >&2)
     fi
     check_return_code="$?"
     return "${check_return_code}"
