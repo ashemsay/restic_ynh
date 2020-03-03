@@ -14,6 +14,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 
 app=$YNH_APP_INSTANCE_NAME
+export final_path="/opt/yunohost/${app}"
 
 #=================================================
 # REMOVE DEPENDENCIES
@@ -32,11 +33,10 @@ ynh_secure_remove "/etc/systemd/system/${app}.timer"
 ynh_secure_remove "/etc/systemd/system/${app}_check.timer"
 ynh_secure_remove "/etc/systemd/system/${app}_check_read_data.timer"
 ynh_secure_remove "/usr/local/bin/backup-with-${app}"
-ynh_secure_remove "/usr/local/bin/check-${app}"
-ynh_secure_remove "/usr/local/bin/check-read-data-${app}"
 ynh_secure_remove "/etc/yunohost/hooks.d/backup_method/05-${app}_app"
-ynh_secure_remove "/etc/yunohost/hooks.d/backup_method/05-${app}_check_app"
-ynh_secure_remove "/etc/yunohost/hooks.d/backup_method/05-${app}_check_read_data_app"
+ynh_secure_remove "${final_path}/check_method"
+ynh_secure_remove "${final_path}/check-${app}"
+ynh_secure_remove "${final_path}"
 
 #=================================================
 # REMOVE SSH CONFIG
