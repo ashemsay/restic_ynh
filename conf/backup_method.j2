@@ -5,6 +5,8 @@ set -e
 RESTIC_PASSWORD="{{ passphrase }}"
 RESTIC_REPOSITORY_BASE=sftp:{{ server }}:{{ backup_path }}
 RESTIC_COMMAND=/usr/local/bin/restic
+LOGFILE=/var/log/restic_backup.log
+ERRFILE=/var/log/restic_backup.err
 
 do_need_mount() {
     work_dir="$1"
@@ -16,7 +18,7 @@ do_need_mount() {
     export RESTIC_REPOSITORY=${RESTIC_REPOSITORY_BASE}/$name
 
     # On essaie de lister les snapshots, sinon on initialise le depot
-    $RESTIC_COMMAND list snapshots || $RESTIC_COMMAND init
+    $RESTIC_COMMAND list snapshots > >(tee -a $LOGFILE) 2> >(tee -a $ERRFILE >&2) || $RESTIC_COMMAND init > >(tee -a $LOGFILE) 2> >(tee -a $ERRFILE >&2)
 }
 
 do_backup() {
@@ -28,19 +30,17 @@ do_backup() {
     description="$5"
     export RESTIC_PASSWORD
     export RESTIC_REPOSITORY=${RESTIC_REPOSITORY_BASE}/$name
-    LOGFILE=/var/log/restic_backup.log
-    ERRFILE=/var/log/restic_backup.err
     current_date=$(date +"%d_%m_%y_%H:%M")
     pushd $work_dir
-    $RESTIC_COMMAND backup ./ >> $LOGFILE 2>> $ERRFILE
+    $RESTIC_COMMAND backup ./ > >(tee -a $LOGFILE) 2> >(tee -a $ERRFILE >&2)
     backup_return_code="$?"
     popd
 
     # On ne nettoie que si la sauvegarde s'est bien passee
     if [ "$backup_return_code" -eq "0" ];then
-        $RESTIC_COMMAND forget --keep-daily 7 --keep-weekly 8 --keep-monthly 12 >> $LOGFILE 2>> $ERRFILE
+        $RESTIC_COMMAND forget --keep-daily 7 --keep-weekly 8 --keep-monthly 12 > >(tee -a $LOGFILE) 2> >(tee -a $ERRFILE >&2)
     else
-        echo "Something went wrong during backup" >> $ERRFILE
+        echo "Something went wrong during backup" > >(tee -a $ERRFILE >&2)
         exit 1
     fi
 }
