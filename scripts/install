@@ -33,29 +33,29 @@ ynh_save_args server port ssh_user backup_path passphrase on_calendar check_on_c
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
-ynh_print_info --message="Installing dependencies"
+ynh_script_progression --message="Installing dependencies" --weight=7
 ynh_install_app_dependencies $pkg_dependencies
-ynh_print_info --message="Installing restic binary"
+ynh_script_progression --message="Installing restic binary" --weight=4
 install_restic
 
 #=================================================
 # ACTIVATE BACKUP METHODS
 #=================================================
-ynh_print_info --message="Activating backup methods"
+ynh_script_progression --message="Activating backup methods"
 mkdir -p /etc/yunohost/hooks.d/backup_method
 mkdir -p /usr/share/yunohost/backup_method
 
 #=================================================
 # SETUP THE BACKUP METHOD
 #=================================================
-ynh_print_info --message="Setting up backup methods"
+ynh_script_progression --message="Setting up backup methods"
 ynh_configure backup_method "/etc/yunohost/hooks.d/backup_method/05-${app}_app"
 ynh_configure check_method "${final_path}/check_method"
 
 #=================================================
 # CONFIGURE CRON
 #=================================================
-ynh_print_info --message="Configuring cron"
+ynh_script_progression --message="Configuring cron" --weight=5
 ynh_configure backup-with-restic "/usr/local/bin/backup-with-${app}"
 ynh_configure backup-with-restic-answerbot "/usr/local/bin/backup-with-${app}-answerbot"
 ynh_configure check-restic "${final_path}/check-${app}"
@@ -79,14 +79,14 @@ systemctl start ${app}_check_read_data.timer
 #=================================================
 # GENERATE SSH KEY
 #=================================================
-ynh_print_info --message="Generating private key"
+ynh_script_progression --message="Generating private key"
 private_key="/root/.ssh/id_${app}_ed25519"
 test -f $private_key || ssh-keygen -q -t ed25519 -N "" -f $private_key
 
 #=================================================
 # GENERATE SSH CONFIG
 #=================================================
-ynh_print_info --message="Generating ssh config for ${server}"
+ynh_script_progression --message="Generating ssh config for ${server}"
 grep -q "${server}" /root/.ssh/config 2>/dev/null || cat << EOCONF >> ~/.ssh/config
 Host ${server}
   Hostname ${server}
@@ -101,14 +101,14 @@ EOCONF
 # Display key
 #=================================================
 
-ynh_print_info --message="You should now allow the following public key for user ${ssh_user} on server ${server}:
+ynh_script_progression --message="You should now allow the following public key for user ${ssh_user} on server ${server}:
 $(cat ${private_key}.pub)"
 
 
 #=================================================
 # SEND A README FOR THE ADMIN
 #=================================================
-ynh_print_info --message="Sending post-installation instructions to admin"
+ynh_script_progression --message="Sending post-installation instructions to admin" --last
 ynh_print_OFF
 message="You should now allow the following public key for user ${ssh_user} on server ${server}:
 $(cat ${private_key}.pub)

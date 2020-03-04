@@ -14,15 +14,18 @@ source /usr/share/yunohost/helpers
 #=================================================
 
 app=$YNH_APP_INSTANCE_NAME
+export final_path="/opt/yunohost/${app}"
 
 #=================================================
 # REMOVE DEPENDENCIES
 #=================================================
+ynh_script_progression --message="Removing dependencies" --weight=4
 ynh_remove_app_dependencies
 
 #=================================================
 # REMOVE FILES
 #=================================================
+ynh_script_progression --message="Removing files" --weight=2
 systemctl stop ${app}.timer
 systemctl disable ${app}.timer
 ynh_remove_systemd_config --service=${app}
@@ -32,13 +35,13 @@ ynh_secure_remove "/etc/systemd/system/${app}.timer"
 ynh_secure_remove "/etc/systemd/system/${app}_check.timer"
 ynh_secure_remove "/etc/systemd/system/${app}_check_read_data.timer"
 ynh_secure_remove "/usr/local/bin/backup-with-${app}"
-ynh_secure_remove "/usr/local/bin/check-${app}"
-ynh_secure_remove "/usr/local/bin/check-read-data-${app}"
 ynh_secure_remove "/etc/yunohost/hooks.d/backup_method/05-${app}_app"
-ynh_secure_remove "/etc/yunohost/hooks.d/backup_method/05-${app}_check_app"
-ynh_secure_remove "/etc/yunohost/hooks.d/backup_method/05-${app}_check_read_data_app"
+ynh_secure_remove "${final_path}/check_method"
+ynh_secure_remove "${final_path}/check-${app}"
+ynh_secure_remove "${final_path}"
 
 #=================================================
 # REMOVE SSH CONFIG
 #=================================================
+ynh_script_progression --message="Removing ssh config" --last
 sed -e "/Host ${server}/,+6d" /root/.ssh/config -i || true
