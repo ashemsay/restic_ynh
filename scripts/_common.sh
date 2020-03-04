@@ -33,6 +33,7 @@ install_restic () {
   expected_sum=$(grep restic_${RESTIC_VERSION}_linux_${arch}.bz2 /tmp/restic-sha256sums | awk '{print $1}')
   sum=$(sha256sum /tmp/restic.bz2 | awk '{print $1}')
   if [ "$sum" == "$expected_sum" ];then
+    pkill restic || true
     bunzip2 /tmp/restic.bz2 -f -c > /usr/local/bin/restic
     chmod +x /usr/local/bin/restic
   else
