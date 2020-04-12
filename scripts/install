@@ -31,11 +31,9 @@ ynh_export server port ssh_user backup_path passphrase on_calendar check_on_cale
 ynh_save_args server port ssh_user backup_path passphrase on_calendar check_on_calendar check_read_data_on_calendar conf data apps allow_extra_space_use
 
 #=================================================
-# INSTALL DEPENDENCIES
+# INSTALL RESTIC
 #=================================================
-ynh_script_progression --message="Installing dependencies" --weight=7
-ynh_install_app_dependencies $pkg_dependencies
-ynh_script_progression --message="Installing restic binary" --weight=4
+ynh_script_progression --message="Installing restic binary" --weight=7
 install_restic
 
 #=================================================
@@ -57,10 +55,8 @@ ynh_configure check_method "${final_path}/check_method"
 #=================================================
 ynh_script_progression --message="Configuring cron" --weight=5
 ynh_configure backup-with-restic "/usr/local/bin/backup-with-${app}"
-ynh_configure backup-with-restic-answerbot "/usr/local/bin/backup-with-${app}-answerbot"
 ynh_configure check-restic "${final_path}/check-${app}"
 chmod u+x "/usr/local/bin/backup-with-${app}"
-chmod u+x "/usr/local/bin/backup-with-${app}-answerbot"
 chmod u+x "${final_path}/check-${app}"
 chmod u+x "${final_path}/check_method"
 ynh_add_systemd_config --service=${app} --template=systemd.service

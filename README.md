@@ -33,9 +33,9 @@ Would you like to backup your YunoHost configuration ? [yes | no] (default: yes)
 Would you like to backup mails and user home directory ? [yes | no] (default: yes):
 Which apps would you backup (list separated by comma or 'all') ? (default: all): gitlab,blogotext,sogo
 Allow backup method to temporarily use more space? [yes | no] (default: yes):
-Indicate the backup frequency (see systemd OnCalendar format) (default: Daily): *-*-* 0:05
-Indicate the backup check frequency (see systemd OnCalendar format) (default: *-*-8,15,22 3:15:00):
-Indicate the complete backup check frequency (see systemd OnCalendar format) (default: *-*-1 1:15:00):
+Indicate the backup frequency (see systemd OnCalendar format) (default: *-*-* 0:15:00): *-*-* 0:05
+Indicate the backup check frequency (see systemd OnCalendar format) (default: Sat *-*-8..31 3:15:00):
+Indicate the complete backup check frequency (see systemd OnCalendar format) (default: Sun *-*-1..7 3:15:00):
 ```
 
 You can schedule your backup by choosing an other frequency. Some example:
@@ -128,7 +128,3 @@ yunohost app setting restic apps -v "nextcloud,wordpress"
 ## Backup on different server, and apply distinct schedule for apps
 
 You can setup the restic app several times on the same server so you can backup on several server or manage your frequency backup differently for specific part of your server.
-
-## TODO
-
-* Remove expect message when question was not matched

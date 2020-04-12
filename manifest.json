@@ -6,7 +6,7 @@
     "en": "Backup your server with restic.",
     "fr": "Sauvegardez votre serveur avec restic."
   },
-  "version": "0.9.6~ynh4",
+  "version": "0.9.6~ynh5",
   "url": "https://restic.net/",
   "license": "BSD 2-Clause \"Simplified\" License",
   "maintainer": {
@@ -127,7 +127,7 @@
           "fr": "Indiquez la fréquence de la sauvegarde (voir le format OnCalendar de systemd)"
         },
         "example": "Daily",
-        "default": "Daily"
+        "default": "*-*-* 0:15:00"
       },
       {
         "name": "check_on_calendar",
@@ -137,7 +137,7 @@
           "fr": "Indiquez la fréquence de vérification de la sauvegarde (voir le format OnCalendar de systemd)"
         },
         "example": "Tue *-*-* 00:15:00",
-        "default": "*-*-8,15,22 3:15:00"
+        "default": "Sat *-*-8..31 3:15:00"
       },
       {
         "name": "check_read_data_on_calendar",
@@ -147,7 +147,7 @@
           "fr": "Indiquez la fréquence de vérification complète de la sauvegarde (voir le format OnCalendar de systemd)"
         },
         "example": "Tue *-*-* 00:15:00",
-        "default": "*-*-1 1:15:00"
+        "default": "Sat *-*-1..7 3:15:00"
       }
     ]
   }
