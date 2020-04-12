@@ -41,7 +41,6 @@ if grep "restic.timer" /etc/yunohost/services.yml > /dev/null ; then
 fi
 
 #=================================================
-# INSTALL DEPENDENCIES
+# INSTALL RESTIC
 #=================================================
-ynh_install_app_dependencies $pkg_dependencies
 install_restic

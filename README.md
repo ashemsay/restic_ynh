@@ -128,7 +128,3 @@ yunohost app setting restic apps -v "nextcloud,wordpress"
 ## Backup on different server, and apply distinct schedule for apps
 
 You can setup the restic app several times on the same server so you can backup on several server or manage your frequency backup differently for specific part of your server.
-
-## TODO
-
-* Remove expect message when question was not matched

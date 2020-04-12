@@ -7,8 +7,6 @@
 PKG_DIR=$(cd ../; pwd)
 RESTIC_VERSION="0.9.6"
 
-pkg_dependencies="expect"
-
 # Install restic if restic is not here
 install_restic () {
   architecture=$(uname -m)
