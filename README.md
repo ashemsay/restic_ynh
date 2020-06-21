@@ -1,14 +1,18 @@
-# restic for Yunohost
+# Restic for YunoHost
 
 [![Latest Version](https://img.shields.io/badge/version-0.9.6-green.svg?style=flat)](https://github.com/YunoHost-Apps/restic_ynh/releases)
 [![Status](https://img.shields.io/badge/status-testing-yellow.svg?style=flat)](https://github.com/YunoHost-Apps/restic_ynh/milestones)
 [![Integration level](https://dash.yunohost.org/integration/restic.svg)](https://dash.yunohost.org/appci/app/restic)
 [![GitHub license](https://img.shields.io/badge/license-GPLv3-blue.svg?style=flat)](https://raw.githubusercontent.com/YunoHost-Apps/restic_ynh/master/LICENSE)
-[![GitHub issues](https://img.shields.io/github/issues/YunoHost-Apps/restic_ynh.svg?style=flat)](https://github.com/YunoHost-Apps/restic_ynh/issues)
-
+[![GitHub issues](https://img.shields.io/github/issues/YunoHost-Apps/restic_ynh.svg?style=flat)](https://github.com/YunoHost-Apps/restic_ynh/issues)  
 [![Install restic with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=restic)
 
-A [restic](https://restic.net/) package for YunoHost (heavily inspired by [the Borg package](https://github.com/YunoHost-Apps/borg_ynh/)).
+> *This package allows you to install Restic quickly and simply on a YunoHost server.  
+If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/install) to learn how to install it.*
+
+## Overview
+
+A [Restic](https://restic.net/) package for YunoHost (heavily inspired by [the Borg package](https://github.com/YunoHost-Apps/borg_ynh/)).
 
 Restic is a backup tool that can make local and remote backups.
 This package uses restic to make backups to a sftp server.
@@ -17,7 +21,7 @@ This package uses restic to make backups to a sftp server.
 
 If you want to backup your server A onto the server B.
 
-## Setup restic app on Server A
+## Setup Restic app on Server A
 
 Firstly set up this app on the server A you want to backup:
 
@@ -114,7 +118,7 @@ If you want to check the backups consistency:
 systemctl start restic_check.service
 ```
 
-If you want to make a complete check of the backups - keep in mind that this reads all the backed up data, it can take some time depending on your target server upload speed (more on this topic in [the restic documentation](https://restic.readthedocs.io/en/latest/045_working_with_repos.html#checking-integrity-and-consistency):
+If you want to make a complete check of the backups - keep in mind that this reads all the backed up data, it can take some time depending on your target server upload speed (more on this topic in [the Restic documentation](https://restic.readthedocs.io/en/latest/045_working_with_repos.html#checking-integrity-and-consistency):
 ```
 systemctl start restic_check_read_data.service
 ```
@@ -127,4 +131,31 @@ yunohost app setting restic apps -v "nextcloud,wordpress"
 
 ## Backup on different server, and apply distinct schedule for apps
 
-You can setup the restic app several times on the same server so you can backup on several server or manage your frequency backup differently for specific part of your server.
+You can setup the Restic app several times on the same server so you can backup on several server or manage your frequency backup differently for specific part of your server.
+
+#### Supported architectures
+
+* x86-64 - [![Build Status](https://ci-apps.yunohost.org/ci/logs/restic%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/restic/)
+* ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/restic%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/restic/)
+
+## Links
+
+ * Report a bug: https://github.com/YunoHost-Apps/restic_ynh/issues
+ * App website: https://restic.net/
+ * Upstream app repository: https://github.com/restic/restic
+ * YunoHost website: https://yunohost.org/
+
+---
+
+Developer info
+----------------
+
+Please send your pull request to the [testing branch](https://github.com/YunoHost-Apps/restic_ynh/tree/testing).
+
+To try the testing branch, please proceed like that.
+```
+sudo yunohost app install https://github.com/YunoHost-Apps/restic_ynh/tree/testing --debug
+or
+sudo yunohost app upgrade restic -u https://github.com/YunoHost-Apps/restic_ynh/tree/testing --debug
+```
+
