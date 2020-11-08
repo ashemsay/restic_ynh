@@ -8,7 +8,7 @@
   },
   "version": "0.9.6~ynh6",
   "url": "https://restic.net/",
-  "license": "BSD 2-Clause \"Simplified\" License",
+  "license": "BSD-2-Clause",
   "maintainer": {
     "name": "Lionel Coupouchetty-Ramouchetty",
     "email": "restic-ynh@coupouchetty-ramouchetty.fr",
