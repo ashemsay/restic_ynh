@@ -38,7 +38,7 @@ mkdir -p /usr/share/yunohost/backup_method
 #=================================================
 # RESTORE FILES
 #=================================================
-ynh_restore 
+ynh_restore
 
 #=================================================
 # ADVERTISE SERVICE IN ADMIN PANEL

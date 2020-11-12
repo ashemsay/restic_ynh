@@ -5,7 +5,7 @@
 #=================================================
 # App package root directory should be the parent folder
 PKG_DIR=$(cd ../; pwd)
-RESTIC_VERSION="0.9.6"
+RESTIC_VERSION="0.10.0"
 
 # Install restic if restic is not here
 install_restic () {
@@ -57,7 +57,7 @@ ynh_export () {
     export $var="${!ynh_arg}"
   done
 }
-# Save listed var in YunoHost app settings 
+# Save listed var in YunoHost app settings
 # usage: ynh_save_args VARNAME1 [VARNAME2 [...]]
 ynh_save_args () {
   for var in $@;

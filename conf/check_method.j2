@@ -2,8 +2,13 @@
 
 set -e
 
-RESTIC_PASSWORD="{{ passphrase }}"
-RESTIC_REPOSITORY_BASE=sftp:{{ server }}:{{ backup_path }}
+RESTIC_SERVER=$(yunohost app setting restic server)
+RESTIC_SERVER_PORT=$(yunohost app setting restic port)
+RESTIC_PATH=$(yunohost app setting restic backup_path)
+
+RESTIC_PASSWORD="$(yunohost app setting restic passphrase)"
+RESTIC_REPOSITORY_BASE=sftp://$RESTIC_SERVER:$RESTIC_SERVER_PORT/$RESTIC_PATH/
+
 RESTIC_COMMAND=/usr/local/bin/restic
 
 do_check() {
