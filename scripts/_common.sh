@@ -22,7 +22,7 @@ install_restic () {
       arch=arm
       ;;
     *)
-      echo 
+      echo
       ynh_die --message="Unsupported architecture \"$architecture\""
       ;;
   esac
