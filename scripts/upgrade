@@ -14,6 +14,7 @@ source /usr/share/yunohost/helpers
 #=================================================
 
 app=$YNH_APP_INSTANCE_NAME
+export final_path="/opt/yunohost/${app}"
 
 #=================================================
 # CHECK IF AN UPGRADE IS NEEDED
@@ -44,3 +45,32 @@ fi
 # INSTALL RESTIC
 #=================================================
 install_restic
+
+#=================================================
+# CONFIGURE SERVICES
+#=================================================
+ynh_add_systemd_config --service=${app} --template=systemd.service
+ynh_configure systemd.timer "/etc/systemd/system/${app}.timer"
+systemctl disable ${app}.service
+systemctl enable ${app}.timer
+
+#=================================================
+# ACTIVATE BACKUP METHODS
+#=================================================
+ynh_script_progression --message="Activating backup methods"
+mkdir -p /etc/yunohost/hooks.d/backup_method || true
+mkdir -p /usr/share/yunohost/backup_method || true
+
+#=================================================
+# SETUP THE BACKUP METHOD
+#=================================================
+ynh_script_progression --message="Setting up backup methods"
+ynh_configure backup_method "/etc/yunohost/hooks.d/backup_method/05-${app}_app"
+ynh_configure check_method "${final_path}/check_method"
+
+#=================================================
+# SETUP LOG SCRIPT
+#=================================================
+ynh_script_progression --message="Setting up log script"
+ynh_configure restic_log "${final_path}/restic_log"
+chmod u+x "${final_path}/restic_log"
