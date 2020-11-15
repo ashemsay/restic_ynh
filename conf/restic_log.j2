@@ -1,7 +1,7 @@
 #!/bin/bash
 set -u
 
-invocation_id=$(systemctl show -p InvocationID --value restic.service)
+invocation_id=$(systemctl show -p InvocationID --value {{ app }}.service)
 hostname=$(hostname)
 subject="YunoHost Restic backup log on ${hostname}"
 backup_results=$(/bin/journalctl _SYSTEMD_INVOCATION_ID=${invocation_id} | grep -oP '(?<=    )[a-zA-Z_-]+: \w+')

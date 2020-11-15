@@ -13,8 +13,21 @@ source /usr/share/yunohost/helpers
 # LOAD SETTINGS
 #=================================================
 
-app=$YNH_APP_INSTANCE_NAME
+export app=$YNH_APP_INSTANCE_NAME
 export final_path="/opt/yunohost/${app}"
+export server=$(ynh_app_setting_get $app server)
+export port=$(ynh_app_setting_get $app port)
+export ssh_user=$(ynh_app_setting_get $app ssh_user)
+export backup_path=$(ynh_app_setting_get $app backup_path)
+export passphrase=$(ynh_app_setting_get $app passphrase)
+export on_calendar=$(ynh_app_setting_get $app on_calendar)
+export check_on_calendar=$(ynh_app_setting_get $app check_on_calendar)
+export check_read_data_on_calendar=$(ynh_app_setting_get $app check_read_data_on_calendar)
+export conf=$(ynh_app_setting_get $app conf)
+export data=$(ynh_app_setting_get $app data)
+export apps=$(ynh_app_setting_get $app apps)
+export allow_extra_space_use=$(ynh_app_setting_get $app allow_extra_space_use)
+
 
 #=================================================
 # CHECK IF AN UPGRADE IS NEEDED
