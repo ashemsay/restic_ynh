@@ -57,22 +57,15 @@ fi
 #=================================================
 # INSTALL RESTIC
 #=================================================
+ynh_script_progression --message="Installing restic binary" --weight=7
 install_restic
-
-#=================================================
-# CONFIGURE SERVICES
-#=================================================
-ynh_add_systemd_config --service=${app} --template=systemd.service
-ynh_configure systemd.timer "/etc/systemd/system/${app}.timer"
-systemctl disable ${app}.service
-systemctl enable ${app}.timer
 
 #=================================================
 # ACTIVATE BACKUP METHODS
 #=================================================
 ynh_script_progression --message="Activating backup methods"
-mkdir -p /etc/yunohost/hooks.d/backup_method || true
-mkdir -p /usr/share/yunohost/backup_method || true
+mkdir -p /etc/yunohost/hooks.d/backup_method
+mkdir -p /usr/share/yunohost/backup_method
 
 #=================================================
 # SETUP THE BACKUP METHOD
@@ -87,3 +80,30 @@ ynh_configure check_method "${final_path}/check_method"
 ynh_script_progression --message="Setting up log script"
 ynh_configure restic_log "${final_path}/restic_log"
 chmod u+x "${final_path}/restic_log"
+
+#=================================================
+# CONFIGURE CRON
+#=================================================
+ynh_script_progression --message="Configuring cron" --weight=5
+ynh_configure backup-with-restic "/usr/local/bin/backup-with-${app}"
+ynh_configure check-restic "${final_path}/check-${app}"
+chmod u+x "/usr/local/bin/backup-with-${app}"
+chmod u+x "${final_path}/check-${app}"
+chmod u+x "${final_path}/check_method"
+ynh_add_systemd_config --service=${app} --template=systemd.service
+ynh_add_systemd_config --service=${app}_check --template=systemd_check.service
+ynh_add_systemd_config --service=${app}_check_read_data --template=systemd_check_read_data.service
+ynh_configure systemd.timer "/etc/systemd/system/${app}.timer"
+ynh_configure systemd_check.timer "/etc/systemd/system/${app}_check.timer"
+ynh_configure systemd_check_read_data.timer "/etc/systemd/system/${app}_check_read_data.timer"
+systemctl disable ${app}.service
+systemctl disable ${app}_check.service
+systemctl disable ${app}_check_read_data.service
+systemctl enable ${app}.timer
+systemctl enable ${app}_check.timer
+systemctl enable ${app}_check_read_data.timer
+systemctl start ${app}.timer
+systemctl start ${app}_check.timer
+systemctl start ${app}_check_read_data.timer
+
+ynh_script_progression --message="End of upgrade process" --last
