@@ -51,6 +51,13 @@ ynh_configure backup_method "/etc/yunohost/hooks.d/backup_method/05-${app}_app"
 ynh_configure check_method "${final_path}/check_method"
 
 #=================================================
+# SETUP LOG SCRIPT
+#=================================================
+ynh_script_progression --message="Setting up log script"
+ynh_configure restic_log "${final_path}/restic_log"
+chmod u+x "${final_path}/restic_log"
+
+#=================================================
 # CONFIGURE CRON
 #=================================================
 ynh_script_progression --message="Configuring cron" --weight=5

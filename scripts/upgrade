@@ -13,7 +13,21 @@ source /usr/share/yunohost/helpers
 # LOAD SETTINGS
 #=================================================
 
-app=$YNH_APP_INSTANCE_NAME
+export app=$YNH_APP_INSTANCE_NAME
+export final_path="/opt/yunohost/${app}"
+export server=$(ynh_app_setting_get $app server)
+export port=$(ynh_app_setting_get $app port)
+export ssh_user=$(ynh_app_setting_get $app ssh_user)
+export backup_path=$(ynh_app_setting_get $app backup_path)
+export passphrase=$(ynh_app_setting_get $app passphrase)
+export on_calendar=$(ynh_app_setting_get $app on_calendar)
+export check_on_calendar=$(ynh_app_setting_get $app check_on_calendar)
+export check_read_data_on_calendar=$(ynh_app_setting_get $app check_read_data_on_calendar)
+export conf=$(ynh_app_setting_get $app conf)
+export data=$(ynh_app_setting_get $app data)
+export apps=$(ynh_app_setting_get $app apps)
+export allow_extra_space_use=$(ynh_app_setting_get $app allow_extra_space_use)
+
 
 #=================================================
 # CHECK IF AN UPGRADE IS NEEDED
@@ -43,4 +57,53 @@ fi
 #=================================================
 # INSTALL RESTIC
 #=================================================
+ynh_script_progression --message="Installing restic binary" --weight=7
 install_restic
+
+#=================================================
+# ACTIVATE BACKUP METHODS
+#=================================================
+ynh_script_progression --message="Activating backup methods"
+mkdir -p /etc/yunohost/hooks.d/backup_method
+mkdir -p /usr/share/yunohost/backup_method
+
+#=================================================
+# SETUP THE BACKUP METHOD
+#=================================================
+ynh_script_progression --message="Setting up backup methods"
+ynh_configure backup_method "/etc/yunohost/hooks.d/backup_method/05-${app}_app"
+ynh_configure check_method "${final_path}/check_method"
+
+#=================================================
+# SETUP LOG SCRIPT
+#=================================================
+ynh_script_progression --message="Setting up log script"
+ynh_configure restic_log "${final_path}/restic_log"
+chmod u+x "${final_path}/restic_log"
+
+#=================================================
+# CONFIGURE CRON
+#=================================================
+ynh_script_progression --message="Configuring cron" --weight=5
+ynh_configure backup-with-restic "/usr/local/bin/backup-with-${app}"
+ynh_configure check-restic "${final_path}/check-${app}"
+chmod u+x "/usr/local/bin/backup-with-${app}"
+chmod u+x "${final_path}/check-${app}"
+chmod u+x "${final_path}/check_method"
+ynh_add_systemd_config --service=${app} --template=systemd.service
+ynh_add_systemd_config --service=${app}_check --template=systemd_check.service
+ynh_add_systemd_config --service=${app}_check_read_data --template=systemd_check_read_data.service
+ynh_configure systemd.timer "/etc/systemd/system/${app}.timer"
+ynh_configure systemd_check.timer "/etc/systemd/system/${app}_check.timer"
+ynh_configure systemd_check_read_data.timer "/etc/systemd/system/${app}_check_read_data.timer"
+systemctl disable ${app}.service
+systemctl disable ${app}_check.service
+systemctl disable ${app}_check_read_data.service
+systemctl enable ${app}.timer
+systemctl enable ${app}_check.timer
+systemctl enable ${app}_check_read_data.timer
+systemctl start ${app}.timer
+systemctl start ${app}_check.timer
+systemctl start ${app}_check_read_data.timer
+
+ynh_script_progression --message="End of upgrade process" --last
