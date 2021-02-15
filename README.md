@@ -1,6 +1,6 @@
 # Restic for YunoHost
 
-[![Latest Version](https://img.shields.io/badge/version-0.11.0-green.svg?style=flat)](https://github.com/YunoHost-Apps/restic_ynh/releases)
+[![Latest Version](https://img.shields.io/badge/version-0.12.0-green.svg?style=flat)](https://github.com/YunoHost-Apps/restic_ynh/releases)
 [![Status](https://img.shields.io/badge/status-testing-yellow.svg?style=flat)](https://github.com/YunoHost-Apps/restic_ynh/milestones)
 [![Integration level](https://dash.yunohost.org/integration/restic.svg)](https://dash.yunohost.org/appci/app/restic)
 [![GitHub license](https://img.shields.io/badge/license-GPLv3-blue.svg?style=flat)](https://raw.githubusercontent.com/YunoHost-Apps/restic_ynh/master/LICENSE)

@@ -5,7 +5,7 @@
 #=================================================
 # App package root directory should be the parent folder
 PKG_DIR=$(cd ../; pwd)
-RESTIC_VERSION="0.11.0"
+RESTIC_VERSION="0.12.0"
 
 # Install restic if restic is not here
 install_restic () {
