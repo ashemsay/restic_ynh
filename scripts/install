@@ -72,12 +72,12 @@ ynh_add_systemd_config --service=${app}_check_read_data --template=systemd_check
 ynh_configure systemd.timer "/etc/systemd/system/${app}.timer"
 ynh_configure systemd_check.timer "/etc/systemd/system/${app}_check.timer"
 ynh_configure systemd_check_read_data.timer "/etc/systemd/system/${app}_check_read_data.timer"
-systemctl disable ${app}.service
-systemctl disable ${app}_check.service
-systemctl disable ${app}_check_read_data.service
-systemctl enable ${app}.timer
-systemctl enable ${app}_check.timer
-systemctl enable ${app}_check_read_data.timer
+systemctl disable --quiet ${app}.service
+systemctl disable --quiet ${app}_check.service
+systemctl disable --quiet ${app}_check_read_data.service
+systemctl enable --quiet ${app}.timer
+systemctl enable --quiet ${app}_check.timer
+systemctl enable --quiet ${app}_check_read_data.timer
 systemctl start ${app}.timer
 systemctl start ${app}_check.timer
 systemctl start ${app}_check_read_data.timer

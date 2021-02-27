@@ -41,10 +41,9 @@ mkdir -p /usr/share/yunohost/backup_method
 ynh_restore
 
 #=================================================
-# ADVERTISE SERVICE IN ADMIN PANEL
+# ENABLE TIMER
 #=================================================
-yunohost service add $app
-systemctl enable $app.timer
+systemctl --quiet enable $app.timer
 systemctl start $app.timer
 #yunohost service add $app.timer
 #yunohost service enable $app.timer
@@ -53,5 +52,5 @@ systemctl start $app.timer
 #=================================================
 # RESTORE SYSTEMD
 #=================================================
-systemctl enable $app.service
+systemctl --quiet enable $app.service
 

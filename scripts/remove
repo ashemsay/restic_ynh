@@ -27,7 +27,7 @@ ynh_remove_app_dependencies
 #=================================================
 ynh_script_progression --message="Removing files" --weight=2
 systemctl stop ${app}.timer
-systemctl disable ${app}.timer
+systemctl --quiet disable ${app}.timer
 ynh_remove_systemd_config --service=${app}
 ynh_remove_systemd_config --service=${app}_check
 ynh_remove_systemd_config --service=${app}_check_read_data

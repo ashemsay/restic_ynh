@@ -50,7 +50,7 @@ ynh_abort_if_errors
 
 if grep "restic.timer" /etc/yunohost/services.yml > /dev/null ; then
     yunohost service remove $app.timer
-    systemctl enable $app.timer
+    systemctl --quiet enable $app.timer
     systemctl start $app.timer
 fi
 
