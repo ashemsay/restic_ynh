@@ -5,6 +5,9 @@
   vars:
     ansible_python_interpreter: python3
   tasks:
+    - name: set timezone
+      community.general.timezone:
+        name: Europe/Paris
     - name: upgrade
       apt:
         upgrade: true
