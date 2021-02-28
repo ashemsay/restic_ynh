@@ -47,7 +47,7 @@
   vars:
     ansible_python_interpreter: python3
   tasks:
-    - name: install apt packages
+    - name: install test env required apt packages
       apt:
         name:
           - git
@@ -74,7 +74,7 @@
       loop:
         - lxc
         - lxd
-    - name: install apt packages
+    - name: install test script required apt packages
       apt:
         name:
           - python3-pexpect
@@ -89,24 +89,7 @@
       debug:
         var: ansible_local
     - name: initialize lxd
-      expect:
-        command: lxd init
-        responses:
-          (?i)Would you like to use LXD clustering: no
-          (?i)Do you want to configure a new storage pool: yes
-          (?i)Name of the new storage pool: default
-          (?i)Name of the storage backend to use: btrfs
-          (?i)Create a new BTRFS pool: yes
-          (?i)Would you like to use an existing empty block device: no
-          (?i)Size in GB of the new loop device: 24GB
-          (?i)Would you like to connect to a MAAS server: no
-          (?i)Would you like to create a new local network bridge: yes
-          (?i)What should the new bridge be called: lxdbr0
-          (?i)What IPv4 address should be used: auto
-          (?i)What IPv6 address should be used: auto
-          (?i)Would you like the LXD server to be available over the network: no
-          (?i)Would you like stale cached images to be updated automatically: yes
-          (?i)preseed to be printed: no
+      command: lxd init --auto
       notify:
         - update local facts
       when: >
