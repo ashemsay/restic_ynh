@@ -116,20 +116,23 @@ ynh_script_progression --message="End of upgrade process" --last
 # making removal in multi-instance cases break the remaining
 # instances.
 # So we need to add the delimiters if they are missing
+set +o errexit
+set +o nounset
+private_key="/root/.ssh/id_${app}_ed25519"
 grep -q "begin ${app}" /root/.ssh/config
 missing_delimiters="$?"
 if [ "$missing_delimiters" -eq 1 ];then
   # did not find delimiters so removing old configuration
   sed -e "/Host ${server}/,+6d" /root/.ssh/config -i || true
   cat << EOCONF >> ~/.ssh/config
-  # begin $app ssh config
-  Host ${server}
-    Hostname ${server}
-    Port ${port}
-    User ${ssh_user}
-    IdentityFile ${private_key}
-    StrictHostKeyChecking no
-    UserKnownHostsFile /dev/null
-  # end $app ssh config
+# begin $app ssh config
+Host ${server}
+  Hostname ${server}
+  Port ${port}
+  User ${ssh_user}
+  IdentityFile ${private_key}
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
+# end $app ssh config
 EOCONF
 fi
