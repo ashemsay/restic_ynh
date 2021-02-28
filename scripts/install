@@ -48,14 +48,14 @@ mkdir -p /usr/share/yunohost/backup_method
 #=================================================
 ynh_script_progression --message="Setting up backup methods"
 ynh_configure backup_method "/etc/yunohost/hooks.d/backup_method/05-${app}_app"
-ynh_configure check_method "${final_path}/check_method"
+ynh_configure check_method "${final_path}/check_method_${app}"
 
 #=================================================
 # SETUP LOG SCRIPT
 #=================================================
 ynh_script_progression --message="Setting up log script"
-ynh_configure restic_log "${final_path}/restic_log"
-chmod u+x "${final_path}/restic_log"
+ynh_configure restic_log "${final_path}/restic_log_${app}"
+chmod u+x "${final_path}/restic_log_${app}"
 
 #=================================================
 # CONFIGURE CRON
@@ -65,7 +65,7 @@ ynh_configure backup-with-restic "/usr/local/bin/backup-with-${app}"
 ynh_configure check-restic "${final_path}/check-${app}"
 chmod u+x "/usr/local/bin/backup-with-${app}"
 chmod u+x "${final_path}/check-${app}"
-chmod u+x "${final_path}/check_method"
+chmod u+x "${final_path}/check_method_${app}"
 ynh_add_systemd_config --service=${app} --template=systemd.service
 ynh_add_systemd_config --service=${app}_check --template=systemd_check.service
 ynh_add_systemd_config --service=${app}_check_read_data --template=systemd_check_read_data.service
@@ -92,8 +92,9 @@ test -f $private_key || ssh-keygen -q -t ed25519 -N "" -f $private_key
 #=================================================
 # GENERATE SSH CONFIG
 #=================================================
-ynh_script_progression --message="Generating ssh config for ${server}"
-grep -q "${server}" /root/.ssh/config 2>/dev/null || cat << EOCONF >> ~/.ssh/config
+ynh_script_progression --message="Generating ssh config for ${app} server ${server}"
+grep -q "${app}" /root/.ssh/config 2>/dev/null || cat << EOCONF >> ~/.ssh/config
+# begin $app ssh config
 Host ${server}
   Hostname ${server}
   Port ${port}
@@ -101,6 +102,7 @@ Host ${server}
   IdentityFile ${private_key}
   StrictHostKeyChecking no
   UserKnownHostsFile /dev/null
+# end $app ssh config
 EOCONF
 
 #=================================================
@@ -119,7 +121,7 @@ ynh_print_OFF
 message="You should now allow the following public key for user ${ssh_user} on server ${server}:
 $(cat ${private_key}.pub)
 
-Do so by running this command on ${server} with user ${ssh_user}:
+Do so by running those commands on ${server} with user ${ssh_user}:
 
 mkdir ~/.ssh 2>/dev/null
 touch ~/.ssh/authorized_keys
@@ -130,7 +132,7 @@ EOPKEY
 
 $(if [ "$backup_path" != "./" ];then echo "Also make sure ${backup_path} exists and is writable by ${ssh_user}";fi)
 
-If you facing an issue or want to improve this app, please open a new issue in this project: https://github.com/YunoHost-Apps/restic_ynh"
+If you're facing an issue or want to improve this app, please open a new issue in this project: https://github.com/YunoHost-Apps/restic_ynh"
 
 ynh_send_readme_to_admin "$message" "root"
 ynh_print_ON

@@ -48,7 +48,7 @@ ynh_clean_setup () {
 ynh_abort_if_errors
 
 
-if grep "restic.timer" /etc/yunohost/services.yml > /dev/null ; then
+if grep "${app}.timer" /etc/yunohost/services.yml > /dev/null ; then
     yunohost service remove $app.timer
     systemctl --quiet enable $app.timer
     systemctl start $app.timer
@@ -72,14 +72,14 @@ mkdir -p /usr/share/yunohost/backup_method
 #=================================================
 ynh_script_progression --message="Setting up backup methods"
 ynh_configure backup_method "/etc/yunohost/hooks.d/backup_method/05-${app}_app"
-ynh_configure check_method "${final_path}/check_method"
+ynh_configure check_method "${final_path}/check_method_${app}"
 
 #=================================================
 # SETUP LOG SCRIPT
 #=================================================
 ynh_script_progression --message="Setting up log script"
-ynh_configure restic_log "${final_path}/restic_log"
-chmod u+x "${final_path}/restic_log"
+ynh_configure restic_log "${final_path}/restic_log_${app}"
+chmod u+x "${final_path}/restic_log_${app}"
 
 #=================================================
 # CONFIGURE CRON
@@ -89,7 +89,7 @@ ynh_configure backup-with-restic "/usr/local/bin/backup-with-${app}"
 ynh_configure check-restic "${final_path}/check-${app}"
 chmod u+x "/usr/local/bin/backup-with-${app}"
 chmod u+x "${final_path}/check-${app}"
-chmod u+x "${final_path}/check_method"
+chmod u+x "${final_path}/check_method_${app}"
 ynh_add_systemd_config --service=${app} --template=systemd.service
 ynh_add_systemd_config --service=${app}_check --template=systemd_check.service
 ynh_add_systemd_config --service=${app}_check_read_data --template=systemd_check_read_data.service
@@ -107,3 +107,29 @@ systemctl start ${app}_check.timer
 systemctl start ${app}_check_read_data.timer
 
 ynh_script_progression --message="End of upgrade process" --last
+
+#=================================================
+# UPGRADE SSH CONFIG
+#=================================================
+
+# old versions did not have delimiters in /root/.ssh/config
+# making removal in multi-instance cases break the remaining
+# instances.
+# So we need to add the delimiters if they are missing
+grep -q "begin ${app}" /root/.ssh/config
+missing_delimiters="$?"
+if [ "$missing_delimiters" -eq 1 ];then
+  # did not find delimiters so removing old configuration
+  sed -e "/Host ${server}/,+6d" /root/.ssh/config -i || true
+  cat << EOCONF >> ~/.ssh/config
+  # begin $app ssh config
+  Host ${server}
+    Hostname ${server}
+    Port ${port}
+    User ${ssh_user}
+    IdentityFile ${private_key}
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+  # end $app ssh config
+EOCONF
+fi

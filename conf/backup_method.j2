@@ -5,17 +5,17 @@ set -e
 ###
 # Fetch information from YNH settings
 ###
-RESTIC_SERVER=$(yunohost app setting restic server)
-RESTIC_SERVER_PORT=$(yunohost app setting restic port)
-RESTIC_SERVER_USER=$(yunohost app setting restic ssh_user)
-RESTIC_PATH=$(yunohost app setting restic backup_path)
+RESTIC_SERVER=$(yunohost app setting {{ app }} server)
+RESTIC_SERVER_PORT=$(yunohost app setting {{ app }} port)
+RESTIC_SERVER_USER=$(yunohost app setting {{ app }} ssh_user)
+RESTIC_PATH=$(yunohost app setting {{ app }} backup_path)
 
-RESTIC_PASSWORD="$(yunohost app setting restic passphrase)"
+RESTIC_PASSWORD="$(yunohost app setting {{ app }} passphrase)"
 RESTIC_REPOSITORY_BASE=sftp://$RESTIC_SERVER_USER@$RESTIC_SERVER:$RESTIC_SERVER_PORT/$RESTIC_PATH/
 
-RESTIC_COMMAND=/usr/local/bin/restic
-LOGFILE=/var/log/restic_backup.log
-ERRFILE=/var/log/restic_backup.err
+RESTIC_COMMAND=/usr/local/bin/{{ app }}
+LOGFILE=/var/log/restic_backup_{{ app }}.log
+ERRFILE=/var/log/restic_backup_{{ app }}.err
 
 do_need_mount() {
     work_dir="$1"

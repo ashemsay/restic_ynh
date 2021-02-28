@@ -36,7 +36,7 @@ ynh_secure_remove "/etc/systemd/system/${app}_check.timer"
 ynh_secure_remove "/etc/systemd/system/${app}_check_read_data.timer"
 ynh_secure_remove "/usr/local/bin/backup-with-${app}"
 ynh_secure_remove "/etc/yunohost/hooks.d/backup_method/05-${app}_app"
-ynh_secure_remove "${final_path}/check_method"
+ynh_secure_remove "${final_path}/check_method_${app}"
 ynh_secure_remove "${final_path}/check-${app}"
 ynh_secure_remove "${final_path}"
 
@@ -44,4 +44,4 @@ ynh_secure_remove "${final_path}"
 # REMOVE SSH CONFIG
 #=================================================
 ynh_script_progression --message="Removing ssh config" --last
-sed -e "/Host ${server}/,+6d" /root/.ssh/config -i || true
+sed -e "/begin ${app}/,/end ${app}/{/.*/d}" /root/.ssh/config -i || true

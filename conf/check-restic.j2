@@ -20,13 +20,13 @@ CHECK_READ_DATA=${1:-0}
 # Check system part conf
 conf=$(yunohost app setting {{ app }} conf)
 if [ $conf -eq 1 ];then
-  {{final_path}}/check_method auto_conf ${CHECK_READ_DATA}
+  {{final_path}}/check_method_{{ app }} auto_conf ${CHECK_READ_DATA}
 fi
 
 # Check system data
 data=$(yunohost app setting {{ app }} data)
 if [ $data -eq 1 ];then
-  {{final_path}}/check_method auto_data ${CHECK_READ_DATA}
+  {{final_path}}/check_method_{{ app }} auto_data ${CHECK_READ_DATA}
 fi
 
 # Check all apps independently
@@ -40,7 +40,7 @@ for app in $(ls /etc/yunohost/apps/*/scripts/backup | cut -d / -f 5); do
     fi
   done
   if [ "$check_app" == "true" ];then
-    {{final_path}}/check_method auto_${app} ${CHECK_READ_DATA}
+    {{final_path}}/check_method_{{ app }} auto_${app} ${CHECK_READ_DATA}
   fi
 done
 rm "$LOCK_FILE"
