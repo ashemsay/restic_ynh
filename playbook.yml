@@ -1,0 +1,117 @@
+---
+- name: upgrade
+  hosts: all
+  become: true
+  vars:
+    ansible_python_interpreter: python3
+  tasks:
+    - name: set timezone
+      community.general.timezone:
+        name: Europe/Paris
+    - name: upgrade
+      apt:
+        upgrade: true
+        update_cache: true
+    - name: stat reboot-required file
+      stat:
+        path: /var/run/reboot-required
+      register: _reboot_required_stat
+    - name: debug _reboot_required_stat
+      debug:
+        var: _reboot_required_stat
+    - name: reboot if required
+      reboot:
+      when: _reboot_required_stat.stat.exists
+- name: get package checker
+  hosts: all
+  become: true
+  vars:
+    ansible_python_interpreter: python3
+  tasks:
+    - name: install git
+      apt:
+        name: git
+        state: present
+    - name: clone package checker
+      git:
+        repo: 'https://github.com/YunoHost/package_check.git'
+        dest: /package_check
+    - name: set vagrant as package check owner
+      file:
+        path: /package_check
+        owner: vagrant
+        group: vagrant
+- name: install package checker requirements
+  hosts: all
+  become: true
+  vars:
+    ansible_python_interpreter: python3
+  tasks:
+    - name: install test env required apt packages
+      apt:
+        name:
+          - git
+          - snapd
+        state: present
+    - name: install snap core package
+      community.general.snap:
+        name:
+          - core
+    - name: install snap lxd package
+      community.general.snap:
+        name:
+          - lxd
+    - name: make vagrant user member of lxd group
+      user:
+        name: vagrant
+        groups: lxd
+        append: true
+    - name: add lxc and lxd to /usr/local/bin
+      file:
+        dest: /usr/local/bin/{{ item }}
+        src: /snap/bin/{{ item }}
+        state: link
+      loop:
+        - lxc
+        - lxd
+    - name: install test script required apt packages
+      apt:
+        name:
+          - python3-pexpect
+          - python3-pip
+          - lynx
+          - jq
+    - name: create ansible local facts directory
+      file:
+        path: /etc/ansible/facts.d
+        state: directory
+    - name: debug local facts
+      debug:
+        var: ansible_local
+    - name: initialize lxd
+      command: lxd init --auto
+      notify:
+        - update local facts
+      when: >
+        'provision' not in ansible_local
+        or 'lxd' not in ansible_local['provision']
+        or 'initialized' not in ansible_local['provision']['lxd']
+        or not ansible_local['provision']['lxd']['initialized']
+    - name: list lxc remotes
+      become_user: vagrant
+      command: lxc remote list
+      changed_when: "'yunohost' not in _lxc_remote_list.stdout"
+      register: _lxc_remote_list
+      notify:
+        - add lxc yunohost remote
+  handlers:
+    - name: update local facts
+      copy:
+        dest: /etc/ansible/facts.d/provision.fact
+        content: |
+          [lxd]
+          initialized=true
+    - name: add lxc yunohost remote
+      become_user: vagrant
+      command: lxc remote add yunohost https://devbaseimgs.yunohost.org --public --accept-certificate
+      changed_when: true

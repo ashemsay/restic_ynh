@@ -32,8 +32,8 @@ install_restic () {
   sum=$(sha256sum /tmp/restic.bz2 | awk '{print $1}')
   if [ "$sum" == "$expected_sum" ];then
     pkill restic || true
-    bunzip2 /tmp/restic.bz2 -f -c > /usr/local/bin/restic
-    chmod +x /usr/local/bin/restic
+    bunzip2 /tmp/restic.bz2 -f -c > /usr/local/bin/${app}
+    chmod +x /usr/local/bin/${app}
   else
     ynh_die --message="\nDownloaded file does not match expected sha256 sum, aborting"
   fi
