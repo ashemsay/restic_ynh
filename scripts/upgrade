@@ -61,6 +61,42 @@ ynh_script_progression --message="Installing restic binary" --weight=7
 install_restic
 
 #=================================================
+# CREATE APP USER
+#=================================================
+ynh_script_progression --message="Creating user ${app}"
+id ${app} 2>/dev/null || useradd -m ${app}
+ynh_script_progression --message="Configure ${app} user sudoer rights"
+cat > /tmp/${app}_sudoer << EOSUDOER
+${app} ALL = (root) NOPASSWD: /usr/bin/yunohost*, /bin/journalctl*
+EOSUDOER
+visudo -cf /tmp/${app}_sudoer && mv /tmp/${app}_sudoer /etc/sudoers.d/${app}
+ynh_script_progression --message="Move ssh keys from root to ${app} user's home"
+ynh_script_progression --message="Generate ssh config"
+set +o errexit
+set +o nounset
+export ssh_dir="/root/.ssh"
+export private_key="${ssh_dir}/id_${app}_ed25519"
+mkdir ${ssh_dir} 2>/dev/null || true
+touch ${ssh_dir}/config
+grep -q "begin ${app}" ${ssh_dir}/config
+missing_conf="$?"
+if [ "$missing_conf" -eq "1" ];then
+  cat << EOCONF >> ${ssh_dir}/config
+  # begin $app ssh config
+  Host ${server}
+    Hostname ${server}
+    Port ${port}
+    User ${ssh_user}
+    IdentityFile ${private_key}
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+  # end $app ssh config
+EOCONF
+fi
+chown -R ${app}: /home/${app}
+
+
+#=================================================
 # ACTIVATE BACKUP METHODS
 #=================================================
 ynh_script_progression --message="Activating backup methods"
@@ -80,6 +116,7 @@ ynh_configure check_method "${final_path}/check_method_${app}"
 ynh_script_progression --message="Setting up log script"
 ynh_configure restic_log "${final_path}/restic_log_${app}"
 chmod u+x "${final_path}/restic_log_${app}"
+chown ${app}: "${final_path}/restic_log_${app}"
 
 #=================================================
 # CONFIGURE CRON
@@ -88,6 +125,7 @@ ynh_script_progression --message="Configuring cron" --weight=5
 ynh_configure backup-with-restic "/usr/local/bin/backup-with-${app}"
 ynh_configure check-restic "${final_path}/check-${app}"
 chmod u+x "/usr/local/bin/backup-with-${app}"
+chown ${app}: "/usr/local/bin/backup-with-${app}"
 chmod u+x "${final_path}/check-${app}"
 chmod u+x "${final_path}/check_method_${app}"
 ynh_add_systemd_config --service=${app} --template=systemd.service
@@ -112,19 +150,18 @@ ynh_script_progression --message="End of upgrade process" --last
 # UPGRADE SSH CONFIG
 #=================================================
 
-# old versions did not have delimiters in /root/.ssh/config
+# old versions did not have delimiters in ~/.ssh/config
 # making removal in multi-instance cases break the remaining
 # instances.
 # So we need to add the delimiters if they are missing
 set +o errexit
 set +o nounset
-private_key="/root/.ssh/id_${app}_ed25519"
-grep -q "begin ${app}" /root/.ssh/config
+grep -q "begin ${app}" ${ssh_dir}/config
 missing_delimiters="$?"
 if [ "$missing_delimiters" -eq 1 ];then
   # did not find delimiters so removing old configuration
-  sed -e "/Host ${server}/,+6d" /root/.ssh/config -i || true
-  cat << EOCONF >> ~/.ssh/config
+  sed -e "/Host ${server}/,+6d" ${ssh_dir}/config -i || true
+  cat << EOCONF >> ${ssh_dir}/config
 # begin $app ssh config
 Host ${server}
   Hostname ${server}

@@ -6,8 +6,8 @@ After=network.target
 Type=oneshot
 ExecStart=__FINALPATH__/check-__APP__ "1"
 ExecStartPost=/bin/bash -c 'echo -e "Subject: YunoHost Restic complete check log on $(hostname)\n$(/bin/journalctl _SYSTEMD_INVOCATION_ID=`systemctl show -p InvocationID --value __APP___check_read_data.service`)" | /usr/sbin/sendmail root'
-User=root
-Group=root
+User=__APP__
+Group=__APP__
 
 [Install]
 WantedBy=multi-user.target
