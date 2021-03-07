@@ -20,9 +20,11 @@ ynh_abort_if_errors
 # LOAD SETTINGS
 #=================================================
 
-app=$YNH_APP_INSTANCE_NAME
+export app=$YNH_APP_INSTANCE_NAME
 
-server=$(ynh_app_setting_get $app server)
+export server=$(ynh_app_setting_get $app server)
+
+export final_path="/opt/yunohost/${app}"
 
 #=================================================
 # INSTALL RESTIC
@@ -43,14 +45,9 @@ ynh_restore
 #=================================================
 # ENABLE TIMER
 #=================================================
-systemctl --quiet enable $app.timer
-systemctl start $app.timer
-#yunohost service add $app.timer
-#yunohost service enable $app.timer
-#yunohost service start $app.timer
-
-#=================================================
-# RESTORE SYSTEMD
-#=================================================
-systemctl --quiet enable $app.service
-
+systemctl enable --quiet ${app}.timer
+systemctl enable --quiet ${app}_check.timer
+systemctl enable --quiet ${app}_check_read_data.timer
+systemctl start ${app}.timer
+systemctl start ${app}_check.timer
+systemctl start ${app}_check_read_data.timer
