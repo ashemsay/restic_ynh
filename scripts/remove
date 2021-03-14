@@ -43,5 +43,14 @@ ynh_secure_remove "${final_path}"
 #=================================================
 # REMOVE SSH CONFIG
 #=================================================
-ynh_script_progression --message="Removing ssh config" --last
-sed -e "/begin ${app}/,/end ${app}/{/.*/d}" /root/.ssh/config -i || true
+ynh_script_progression --message="Removing ssh config"
+ssh_dir="/root/.ssh"
+sed -e "/begin ${app}/,/end ${app}/{/.*/d}" ${ssh_dir}/config -i || true
+
+#=================================================
+# REMOVE USER
+#=================================================
+ynh_script_progression --message="Removing sudoers rights for user ${app}"
+rm /etc/sudoers.d/${app}
+ynh_script_progression --message="Removing ${app} user" --last
+userdel ${app}

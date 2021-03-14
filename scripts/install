@@ -37,6 +37,17 @@ ynh_script_progression --message="Installing restic binary" --weight=7
 install_restic
 
 #=================================================
+# CREATE APP USER
+#=================================================
+ynh_script_progression --message="Creating user ${app}"
+useradd -m ${app}
+ynh_script_progression --message="Configure ${app} user sudoer rights"
+cat > /tmp/${app}_sudoer << EOSUDOER
+${app} ALL = (root) NOPASSWD: /usr/bin/yunohost*, /bin/journalctl*
+EOSUDOER
+visudo -cf /tmp/${app}_sudoer && mv /tmp/${app}_sudoer /etc/sudoers.d/${app}
+
+#=================================================
 # ACTIVATE BACKUP METHODS
 #=================================================
 ynh_script_progression --message="Activating backup methods"
@@ -56,6 +67,7 @@ ynh_configure check_method "${final_path}/check_method_${app}"
 ynh_script_progression --message="Setting up log script"
 ynh_configure restic_log "${final_path}/restic_log_${app}"
 chmod u+x "${final_path}/restic_log_${app}"
+chown ${app}: "${final_path}/restic_log_${app}"
 
 #=================================================
 # CONFIGURE CRON
@@ -64,6 +76,7 @@ ynh_script_progression --message="Configuring cron" --weight=5
 ynh_configure backup-with-restic "/usr/local/bin/backup-with-${app}"
 ynh_configure check-restic "${final_path}/check-${app}"
 chmod u+x "/usr/local/bin/backup-with-${app}"
+chown ${app}: "/usr/local/bin/backup-with-${app}"
 chmod u+x "${final_path}/check-${app}"
 chmod u+x "${final_path}/check_method_${app}"
 ynh_add_systemd_config --service=${app} --template=systemd.service
@@ -83,17 +96,27 @@ systemctl start ${app}_check.timer
 systemctl start ${app}_check_read_data.timer
 
 #=================================================
+# SET PERMISSIONS ON FINAL PATH
+#=================================================
+ynh_script_progression --message="Set permissions on ${final_path}"
+chown -R ${app}: ${final_path}
+
+#=================================================
 # GENERATE SSH KEY
 #=================================================
 ynh_script_progression --message="Generating private key"
-private_key="/root/.ssh/id_${app}_ed25519"
+ssh_dir="/root/.ssh"
+if [ ! -d "${ssh_dir}" ];then
+  mkdir -p "${ssh_dir}"
+fi
+private_key="${ssh_dir}/id_${app}_ed25519"
 test -f $private_key || ssh-keygen -q -t ed25519 -N "" -f $private_key
 
 #=================================================
 # GENERATE SSH CONFIG
 #=================================================
 ynh_script_progression --message="Generating ssh config for ${app} server ${server}"
-grep -q "${app}" /root/.ssh/config 2>/dev/null || cat << EOCONF >> ~/.ssh/config
+grep -q "${app}" ${ssh_dir}/config 2>/dev/null || cat << EOCONF >> ${ssh_dir}/config
 # begin $app ssh config
 Host ${server}
   Hostname ${server}
