@@ -81,7 +81,7 @@ EOPKEY
 ```
 If you don't find the mail and you don't see the message in the log bar you can find the public_key with this command:
 ```
-cat /home/restic/.ssh/id_restic_ed25519.pub
+cat /root/.ssh/id_restic_ed25519.pub
 ```
 
 ## (Optional) set sftp jail on server B
