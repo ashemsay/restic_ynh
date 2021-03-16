@@ -125,10 +125,37 @@ If you want to make a complete check of the backups - keep in mind that this rea
 systemctl start restic_check_read_data.service
 ```
 
+## Display the apps list to backup
+
+```
+yunohost app setting restic apps
+```
+
 ## Edit the apps list to backup
 
 ```
 yunohost app setting restic apps -v "nextcloud,wordpress"
+```
+
+## Launch a backup
+
+```
+systemctl start restic
+```
+
+## Launch a backups check
+
+```
+systemctl start restic_check.service
+```
+
+## Launch a complete backups check
+
+WARNING: this will read data from your backups destination server.
+It may take a quite long time depending on the target server's internet upload speed and hardware performance.
+
+```
+systemctl start restic_check_read_data.service
 ```
 
 ## Backup on different server, and apply distinct schedule for apps
