@@ -67,7 +67,7 @@ ynh_script_progression --message="Creating user ${app}"
 id ${app} 2>/dev/null || useradd -m ${app}
 ynh_script_progression --message="Configure ${app} user sudoer rights"
 cat > /tmp/${app}_sudoer << EOSUDOER
-${app} ALL = (root) NOPASSWD: /usr/bin/yunohost*, /bin/journalctl*
+${app} ALL = (root) NOPASSWD: /usr/bin/yunohost*, /bin/journalctl*, /usr/bin/find /etc/yunohost/apps -name backup
 EOSUDOER
 visudo -cf /tmp/${app}_sudoer && mv /tmp/${app}_sudoer /etc/sudoers.d/${app}
 ynh_script_progression --message="Move ssh keys from root to ${app} user's home"
