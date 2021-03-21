@@ -67,7 +67,7 @@ ynh_script_progression --message="Creating user ${app}"
 id ${app} 2>/dev/null || useradd -m ${app}
 ynh_script_progression --message="Configure ${app} user sudoer rights"
 cat > /tmp/${app}_sudoer << EOSUDOER
-${app} ALL = (root) NOPASSWD: /usr/bin/yunohost*, /bin/journalctl*, /usr/bin/find /etc/yunohost/apps -name backup
+${app} ALL = (root) NOPASSWD: /usr/bin/yunohost*, /bin/journalctl*, /usr/bin/find /etc/yunohost/apps -name backup, ${final_path}/check_method_${app}
 EOSUDOER
 visudo -cf /tmp/${app}_sudoer && mv /tmp/${app}_sudoer /etc/sudoers.d/${app}
 ynh_script_progression --message="Move ssh keys from root to ${app} user's home"
@@ -115,7 +115,7 @@ ynh_configure check_method "${final_path}/check_method_${app}"
 #=================================================
 ynh_script_progression --message="Setting up log script"
 ynh_configure restic_log "${final_path}/restic_log_${app}"
-chmod u+x "${final_path}/restic_log_${app}"
+chmod +x "${final_path}/restic_log_${app}"
 chown ${app}: "${final_path}/restic_log_${app}"
 
 #=================================================
@@ -124,10 +124,10 @@ chown ${app}: "${final_path}/restic_log_${app}"
 ynh_script_progression --message="Configuring cron" --weight=5
 ynh_configure backup-with-restic "/usr/local/bin/backup-with-${app}"
 ynh_configure check-restic "${final_path}/check-${app}"
-chmod u+x "/usr/local/bin/backup-with-${app}"
+chmod +x "/usr/local/bin/backup-with-${app}"
 chown ${app}: "/usr/local/bin/backup-with-${app}"
-chmod u+x "${final_path}/check-${app}"
-chmod u+x "${final_path}/check_method_${app}"
+chmod +x "${final_path}/check-${app}"
+chmod +x "${final_path}/check_method_${app}"
 ynh_add_systemd_config --service=${app} --template=systemd.service
 ynh_add_systemd_config --service=${app}_check --template=systemd_check.service
 ynh_add_systemd_config --service=${app}_check_read_data --template=systemd_check_read_data.service
