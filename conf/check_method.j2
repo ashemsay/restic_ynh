@@ -21,12 +21,14 @@ do_check() {
     LOGFILE=/var/log/restic_check_{{ app }}.log
     ERRFILE=/var/log/restic_check_{{ app }}.err
     current_date=$(date --iso-8601=seconds)
-    echo -e "\n==============\n${current_date}\n${name}\n==============\n" | tee -a ${LOGFILE} | tee -a ${ERRFILE}
+    echo -e "\n$current_date" | tee -a ${LOGFILE} | tee -a ${ERRFILE}
+    echo -e "BEGIN REPO CHECK: ${name}" | tee -a ${LOGFILE} | tee -a ${ERRFILE}
     if [ "$check_read_data" -eq "1" ];then
       $RESTIC_COMMAND check --read-data > >(tee -a $LOGFILE) 2> >(tee -a $ERRFILE >&2)
     else
       $RESTIC_COMMAND check > >(tee -a $LOGFILE) 2> >(tee -a $ERRFILE >&2)
     fi
+    echo -e "END REPO CHECK: ${name}" | tee -a ${LOGFILE} | tee -a ${ERRFILE}
     check_return_code="$?"
     return "${check_return_code}"
 }

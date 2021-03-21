@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=oneshot
 ExecStart=__FINALPATH__/check-__APP__
-ExecStartPost=/bin/bash -c 'echo -e "Subject: YunoHost Restic check log on $(hostname)\n$(sudo /bin/journalctl _SYSTEMD_INVOCATION_ID=`systemctl show -p InvocationID --value __APP___check.service` | grep -v "sudo[\[0-9\]\+]")" | /usr/sbin/sendmail root'
+ExecStartPost=/opt/yunohost/__APP__/restic_check_log___APP__ 0
 User=__APP__
 Group=__APP__
 
