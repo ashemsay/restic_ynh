@@ -38,6 +38,8 @@ ynh_secure_remove "/usr/local/bin/backup-with-${app}"
 ynh_secure_remove "/etc/yunohost/hooks.d/backup_method/05-${app}_app"
 ynh_secure_remove "${final_path}/check_method_${app}"
 ynh_secure_remove "${final_path}/check-${app}"
+ynh_secure_remove "${final_path}/restic_log_${app}"
+ynh_secure_remove "${final_path}/restic_check_log_${app}"
 ynh_secure_remove "${final_path}"
 
 #=================================================
