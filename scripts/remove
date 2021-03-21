@@ -43,6 +43,12 @@ ynh_secure_remove "${final_path}/restic_check_log_${app}"
 ynh_secure_remove "${final_path}"
 
 #=================================================
+# REMOVE LOGROTATE CONFIG
+#=================================================
+ynh_script_progression --message="Removing logrotate config"
+ynh_remove_logrotate
+
+#=================================================
 # REMOVE SSH CONFIG
 #=================================================
 ynh_script_progression --message="Removing ssh config"
