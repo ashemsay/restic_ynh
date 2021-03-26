@@ -21,6 +21,9 @@ install_restic () {
     armv*)
       arch=arm
       ;;
+    aarch64)
+      arch=arm64
+      ;;
     *)
       echo
       ynh_die --message="Unsupported architecture \"$architecture\""
