@@ -128,3 +128,14 @@
         that: _restic_snapshots.stdout | length > 0
         fail_msg: No snapshot was found in auto_restic repository
         success_msg: Found at least 1 snapshot in repository
+- name: check that a check works
+  hosts: all
+  become: true
+  vars:
+    restic_username: resticbackup
+    restic_password: APassphrase
+  tasks:
+    - name: start a check
+      service:
+        name: restic_check
+        state: started
