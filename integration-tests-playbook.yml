@@ -87,6 +87,18 @@
         yunohost app install --force /restic_ynh -a "server=localhost&ssh_user=resticbackup&passphrase=APassphrase&conf=1&port=22&backup_path=&data=1&app=all&allow_extra_space_use=1&on_calendar=Daily&check_on_calendar=*-*-8,15,22&check_read_data_on_calendar=*-*-1&domain=sub.domain.tld&path=&admin=package_checker&is_public=&apps=all"
       args:
         creates: /opt/yunohost/restic
+    - name: install several instances of my_webapp
+      command: >-
+        yunohost app install my_webapp -a "&domain=restic.test&path={{ item.path }}&admin=package_checker&is_public=1&password=APassphrase&with_sftp=0&with_mysql=0"
+      args:
+        creates: "{{ item.creates }}"
+      loop:
+        - path: webapp1
+          creates: /etc/yunohost/apps/my_webapp
+        - path: webapp2
+          creates: /etc/yunohost/apps/my_webapp__2
+        - path: webapp3
+          creates: /etc/yunohost/apps/my_webapp__3
     - name: get ssh key
       command: cat /root/.ssh/id_restic_ed25519.pub
       changed_when: false
@@ -106,28 +118,49 @@
         group: "{{ restic_username }}"
         path: /home/{{ restic_username }}/.ssh/authorized_keys
         line: "{{ _restic_public_key.stdout }}"
-- name: check that a backup works
+- name: check that backuping all apps works
   hosts: all
   become: true
   vars:
     restic_username: resticbackup
     restic_password: APassphrase
   tasks:
+    - name: ensure restic is set to backup all apps
+      lineinfile:
+        path: /etc/yunohost/apps/restic/settings.yml
+        regexp: '^apps:'
+        line: 'apps: all'
     - name: start a backup
       service:
         name: restic
         state: started
-    - name: list snapshots on restic backup repository
+    - name: gather installed apps list
+      shell: yunohost app list | grep 'id:' | awk '{print $2}'
+      changed_when: false
+      register: _yunohost_app_list
+    - name: stat all apps backup repository
+      stat:
+        path: /home/{{ restic_username }}/auto_{{ item }}
+      loop: "{{ _yunohost_app_list.stdout_lines }}"
+      register: _all_apps_repository_stat
+    - name: ensure a repository exists for all apps
+      assert:
+        that: _all_apps_repository_stat.results[index]['stat']['exists']
+        fail_msg: "No repository was created for app {{ item }}"
+        success_msg: "A repository has been found for app {{ item }}"
+      loop: "{{ _yunohost_app_list.stdout_lines }}"
+      loop_control:
+        index_var: index
+    - name: Ensure at least one snapshot has been created for all apps
       environment:
         RESTIC_PASSWORD: "{{ restic_password }}"
-      command: restic -r /home/{{ restic_username }}/auto_restic list snapshots
+      command: restic -r /home/{{ restic_username }}/auto_{{ item }} list snapshots
+      failed_when: _restic_apps_snapshots.stdout_lines | length < 1
       changed_when: false
-      register: _restic_snapshots
-    - name: Ensure repository contains snapshots
-      assert:
-        that: _restic_snapshots.stdout | length > 0
-        fail_msg: No snapshot was found in auto_restic repository
-        success_msg: Found at least 1 snapshot in repository
+      register: _restic_apps_snapshots
+      loop: "{{ _yunohost_app_list.stdout_lines }}"
+      loop_control:
+        index_var: index
 - name: check that a check works
   hosts: all
   become: true
