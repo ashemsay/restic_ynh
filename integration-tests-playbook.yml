@@ -72,3 +72,59 @@
             path: "{{ installation_script_path }}"
             state: absent
       when: not _stat_etc_yunohost.stat.exists
+
+- name: install restic
+  hosts: all
+  become: true
+  vars:
+    restic_username: resticbackup
+  tasks:
+    - name: add backup user
+      user:
+        name: "{{ restic_username }}"
+    - name: install restic
+      command: >-
+        yunohost app install --force /restic_ynh -a "server=localhost&ssh_user=resticbackup&passphrase=APassphrase&conf=1&port=22&backup_path=&data=1&app=all&allow_extra_space_use=1&on_calendar=Daily&check_on_calendar=*-*-8,15,22&check_read_data_on_calendar=*-*-1&domain=sub.domain.tld&path=&admin=package_checker&is_public=&apps=all"
+      args:
+        creates: /opt/yunohost/restic
+    - name: get ssh key
+      command: cat /root/.ssh/id_restic_ed25519.pub
+      changed_when: false
+      register: _restic_public_key
+    - name: ensure .ssh directory exists for user {{ restic_username }}
+      file:
+        path: /home/{{ restic_username }}/.ssh
+        mode: u=rwx,go=
+        state: directory
+        owner: "{{ restic_username }}"
+        group: "{{ restic_username }}"
+    - name: ensure restic public key is authorized on user {{ restic_username }}
+      lineinfile:
+        create: true
+        mode: u=rw,go=
+        owner: "{{ restic_username }}"
+        group: "{{ restic_username }}"
+        path: /home/{{ restic_username }}/.ssh/authorized_keys
+        line: "{{ _restic_public_key.stdout }}"
+- name: check that a backup works
+  hosts: all
+  become: true
+  vars:
+    restic_username: resticbackup
+    restic_password: APassphrase
+  tasks:
+    - name: start a backup
+      service:
+        name: restic
+        state: started
+    - name: list snapshots on restic backup repository
+      environment:
+        RESTIC_PASSWORD: "{{ restic_password }}"
+      command: restic -r /home/{{ restic_username }}/auto_restic list snapshots
+      changed_when: false
+      register: _restic_snapshots
+    - name: Ensure repository contains snapshots
+      assert:
+        that: _restic_snapshots.stdout | length > 0
+        fail_msg: No snapshot was found in auto_restic repository
+        success_msg: Found at least 1 snapshot in repository
